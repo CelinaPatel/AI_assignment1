@@ -302,13 +302,16 @@ class CornersProblem(search.SearchProblem):
         """ 
         
         "*** YOUR CODE HERE *** (Q5)"
-        startPos = self.startingPosition
+        startPos = self.startingPosition # starts at the staring position of pacman (x, y)
 
-        visited = ()
+        visited = () # if no corner is visited, the visited corners is empty
+        
+        # if we start at a corner, we mark that corner as visited
         if startPos in self.corners:
             visited = (startPos,)
 
-        return (startPos, visited)
+        # return the start state and the visited corners (if any)
+        return (startPos, visited) 
     
         """ A state space can be the start coordinates and a list to hold visited corners"""
         # util.raiseNotDefined()
@@ -319,6 +322,8 @@ class CornersProblem(search.SearchProblem):
         """
         "*** YOUR CODE HERE *** (Q5)"
         position, visitedCorners = state
+        
+        # the number of visited corners is 4, we have reached the goal
         return len(visitedCorners) == 4
         
         """ Check to see if a state is a corner, and if so are the other corners visited """
@@ -350,21 +355,25 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE *** (Q5)"
+            # compute the next position which is the result of moving in the given direction 
             x, y = position
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
 
+            # check if the next position hits wall, if it does it skips to next iteration
             hitsWall = self.walls[nextx][nexty]
             if hitsWall:
                 continue
 
-            nextPosition = (nextx, nexty)
+            nextPosition = (nextx, nexty) # compute the next position after moving in the given direction
 
+            # update the visited corners if the next position is the corner 
             nextVisited = visitedSet.copy()
             if nextPosition in self.corners:
                 nextVisited.add(nextPosition)
 
-            successors.append(((nextPosition, tuple(nextVisited)), action, 1))
+            # append the successor state, action and step cost 
+            successors.append(((nextPosition, tuple(nextVisited)), action, 1)) 
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -399,26 +408,33 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE *** (Q6)"
-    position, visitedCorners = state
-    visitedSet = set(visitedCorners)
+    "*** YOUR CODE HERE *** (Q6)" 
+    position, visitedCorners = state # current position and the corners that have been visited 
+    visitedSet = set(visitedCorners) # convert to set 
 
+    # find the corners that have not been visited yet 
     remaining = [c for c in corners if c not in visitedSet]
     if not remaining:
         return 0
 
-    import itertools
+    import itertools # used to find the shortest path to visit remaining corners (check all corners)
 
-    best = float('inf')
+    best = float('inf') # large number to represent the best distance 
     for order in itertools.permutations(remaining):
-        distance = 0
-        current = position
+        
+        distance = 0 # set distance to 0 for each order 
+        current = position # starts at the current position of the pacman
+        
+        # for each order of remaining corners calculate the total distance to visit all corners to update the best one
         for corner in order:
+            # Manhattan distance used to calculate the distance 
             x1, y1 = current
             x2, y2 = corner
             distance += abs(x1 - x2) + abs(y1 - y2)
+            
+            # move the current position to the corner that we calculate the distance
             current = corner
-        best = min(best, distance)
+        best = min(best, distance) # update the best distance if current distance is smaller 
 
     return best
 

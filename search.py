@@ -201,25 +201,30 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     
     "*** YOUR CODE HERE *** (Q4)"
-    priorityQueue = util.PriorityQueue()
+    priorityQueue = util.PriorityQueue() # store the nodes that need to be found (lowest f = g + h)
     start = problem.getStartState()
-    bestCost = {}
+    bestCost = {} # tracks the lowest cost to reach each state 
+    
+    # push start with priority = heuristic(start))
     priorityQueue.push((start, [], 0), heuristic(start, problem))
     bestCost[start] = 0
    
-
+    # use while loop to expand the nodes until the goal is found or the priority queue is empty
     while not priorityQueue.isEmpty():
-        state, path, cost_so_far = priorityQueue.pop()
+        state, path, cost_so_far = priorityQueue.pop() # pop the lowest priority node 
         
+        # if the poppped node is the goal, return the path to the goal
         if problem.isGoalState(state):
             return path
 
+        # expand the node and push the successors to the priority queue with priority g + h
         for succ, action, stepCost in problem.getSuccessors(state):
             new_cost = cost_so_far + stepCost
 
+            # if the successor has not been visited or the new cost is lower, update the best cost and push
             if succ not in bestCost or new_cost < bestCost[succ]:
                 bestCost[succ] = new_cost
-                priorityQueue.push((succ, path + [action], new_cost), new_cost + heuristic(succ, problem)) 
+                priorityQueue.push((succ, path + [action], new_cost), new_cost + heuristic(succ, problem)) # using f = g + h as the priority
 
     return []
 
