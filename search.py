@@ -88,25 +88,32 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE *** (Q1)"
-    # use stack to fi    fringe = util.Stack() # holds the nodes that need to be found
-    fringe = util.Stack()
+
+    # use stack in order to find the deepest nodes first
+    fringe = util.Stack() # set visited states to refrain from expanding same state
     visit = set() # assign visited states to refrain from expanding a state that is already expanded
     start = problem.getStartState() # start state
 
+    # push beginning state (here it goes through each item)
     fringe.push((start,[]))
 
+    # used pseudocode given: go through until no states are left or while stack is not empty, pop
     while not fringe.isEmpty():
         state, path = fringe.pop()
 
+        # if state is goal, return path
         if problem.isGoalState(state):
             return path
+        # if the state is visited then skip
         if state in visit:
             continue
-        visit.add(state)
+        visit.add(state) # add state
 
+        # this code will expand the state we are in currently and it will do this by looking at the successors it has
         for succ, action, cost in problem.getSuccessors(state):
             if succ in visit:
                 continue
+            # if successor is not in visit,  add successor that are not expanded currently and push the fringe
             if succ not in visit:
                 fringe.push((succ, path + [action]))
     return[]
@@ -117,24 +124,32 @@ def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     
     "*** YOUR CODE HERE *** (Q2)"
+
+    # First in First Out (FIFO) is used and because of this we expand the oldest nodes that are present first
     fringe = util.Queue()
-    visit = set()
+    visit = set() 
     start = problem.getStartState()
 
     fringe.push((start,[]))
 
+    #  while the queue is not empty, pop fringe
     while not fringe.isEmpty():
         state, path = fringe.pop()
 
+        # if goal is state, return path
         if problem.isGoalState(state):
             return path
+        # if state is in visit, skip 
         if state in visit:
             continue
-        visit.add(state)
+        visit.add(state) # add state to visit to make it is processed once only
 
+        # current state needs to be expanded and use successor to do this
         for succ, action, cost in problem.getSuccessors(state):
+            # if successor is in visit, skip
             if succ in visit:
                 continue
+            # if successor is not in visit, push fringe
             if succ not in visit:
                 fringe.push((succ, path + [action]))
     return[]
@@ -146,24 +161,28 @@ def uniformCostSearch(problem: SearchProblem):
     
     "*** YOUR CODE HERE *** (Q3)"
     
-    priorityQueue = util.PriorityQueue()
+    priorityQueue = util.PriorityQueue() # this will pop whichever state with the lowest total cost for its path which is
     start = problem.getStartState()
     bestCost = {} 
     priorityQueue.push((start, [], 0), 0) 
-    bestCost[start] = 0 
+    bestCost[start] = 0 # set lowest cost to 0 as the best cost
    
-
+    # while priority queue not empty, pop state with lowest cost
     while not priorityQueue.isEmpty():
         state, path, cost_so_far = priorityQueue.pop()
         
         if problem.isGoalState(state):
             return path
 
+        # largen the neighbours
         for succ, action, stepCost in problem.getSuccessors(state):
+            # add current cost to cost of the present step and assign to new cost
             new_cost = cost_so_far + stepCost
 
+            # if state not visited or it found cheaper cost, record best cost
             if succ not in bestCost or new_cost < bestCost[succ]:
                 bestCost[succ] = new_cost
+                # push successors with updated cost
                 priorityQueue.push((succ, path + [action], new_cost), new_cost)
 
     return []
